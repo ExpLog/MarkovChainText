@@ -1,6 +1,7 @@
 import itertools as it
 from collections import Counter
 import sys
+import random
 
 
 def sliding_window(iter, n=3):
@@ -13,6 +14,21 @@ def sliding_window(iter, n=3):
             yield window
 
 
+def is_capitalized(string):
+    return string[0].isupper()
+
+
+def is_final_word(string):
+    return string[-1] in ".!?\n"
+
+
+def discrete_sample(seq):
+    rand = random.random()
+    words, probability = zip(*seq)
+    acc_words = zip(words, it.accumulate(probability))
+    return next(it.dropwhile(lambda x: x[1] < rand, acc_words))[0]
+
+
 class MarkovChainText(object):
 
     def __init__(self, file, history=3):
@@ -21,6 +37,29 @@ class MarkovChainText(object):
         counter = self._window_counter(file)
         self.totals = None
         self.chain = self.normalize(self._markov_chain(counter))
+
+        self.capital_total = sum(self.totals[key] for key in self.chain.keys() if is_capitalized(key[0]))
+        self.capitals = [(key, self.totals[key]/self.capital_total)
+                         for key in self.chain.keys() if is_capitalized(key[0])]
+
+    def sample_phrases(self, n=1):
+        """
+        Samples a string containing `n` phrases from the learned text.
+        The text will begin with a capital word and each phrase ends with one of ".?!\n"
+        :return:
+        """
+        # TODO: if capitals is empty, this will not work
+        # TODO: sometimes it is impossible to continue, treat this case
+        prev_words = discrete_sample(self.capitals)
+        phrase = [word for word in prev_words]
+        final_words_count = 0
+        while final_words_count < n:
+            next_word = discrete_sample(self.chain[prev_words])
+            phrase.append(next_word)
+            prev_words = prev_words[1:] + (next_word,)
+            if is_final_word(next_word):
+                final_words_count += 1
+        return phrase
 
     def normalize(self, mc):
         """Normalizes the markov chain and saves the totals."""
@@ -52,3 +91,5 @@ class MarkovChainText(object):
 file = open(sys.argv[1], "r")
 mc_text = MarkovChainText(file)
 
+# TODO: set random seed
+print(mc_text.sample_phrases(2))

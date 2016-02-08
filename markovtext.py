@@ -97,7 +97,3 @@ class MarkovChainText(object):
             else:
                 mc[curr_state].append((next_state, count))
         return mc
-
-
-file = open("test/pg11.txt", "r")
-mc_text = MarkovChainText(file, 3)

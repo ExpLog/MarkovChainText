@@ -22,6 +22,7 @@ import logging
 class MarkovBot():
     def __init__(self, file):
         self.file = open(file)
+        self.generator = MarkovChainText(self.file)
 
         # Enable logging
         logging.basicConfig(
@@ -33,23 +34,21 @@ class MarkovBot():
 
     # Define a few command handlers. These usually take the two arguments bot and
     # update. Error handlers also receive the raised TelegramError object in error.
-    def help(self, update):
-        self.sendMessage(update.message.chat_id, text='Help! I need somebody')
+    def help(bot, update):
+        bot.sendMessage(update.message.chat_id, text='Help! I need somebody')
 
     def talk(bot, update):
-        generated_text = MarkovChainText(bot.file)
+        generated_text = bot.generator.sample_phrases()
+        print(generated_text)
         bot.sendMessage(update.message.chat_id, text=generated_text)
-
 
     def echo(self, update):
         self.sendMessage(update.message.chat_id, text=update.message.text)
 
-
     def error(self, update, error):
         self.logger.warn('Update "%s" caused error "%s"' % (update, error))
 
-
-    def run(self):
+    def run(bot):
         # Create the EventHandler and pass it your bot's token.
         updater = Updater("194949588:AAETiWnXkKaOipiu2jaKHWmcTWnPfHXLXf0")
 
@@ -57,14 +56,14 @@ class MarkovBot():
         dp = updater.dispatcher
 
         # on different commands - answer in Telegram
-        dp.addTelegramCommandHandler("help", self.help)
-        dp.addTelegramCommandHandler("talk", self.talk)
+        dp.addTelegramCommandHandler("help", help)
+        dp.addTelegramCommandHandler("talk", talk)
 
         # on noncommand i.e message - echo the message on Telegram
-        dp.addTelegramMessageHandler(self.echo)
+        dp.addTelegramMessageHandler(echo)
 
         # log all errors
-        dp.addErrorHandler(self.error)
+        dp.addErrorHandler(error)
 
         # Start the Bot
         updater.start_polling()

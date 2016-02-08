@@ -23,19 +23,38 @@ class MarkovChainText(object):
         The text will begin with a capital word and each phrase ends with one of ".?!\n"
         :return:
         """
-        prev_words = discrete_sample(self.capitals)
-        phrase = [word for word in prev_words]
-        final_words_count = 0
-        while final_words_count < n:
-            try:
-                next_word = discrete_sample(self.chain[prev_words])
-            except:
-                break
-            phrase.append(next_word)
-            prev_words = prev_words[1:] + (next_word,)
-            if is_final_word(next_word):
-                final_words_count += 1
+        phrase = []
+        final_word_count = 0
+        for word in self:
+            phrase.append(word)
+            if is_final_word(word):
+                final_word_count += 1
+                if final_word_count >= n:
+                    break
+
         return " ".join(phrase)
+
+    def __iter__(self):
+        self._start_words = discrete_sample(self.capitals)
+        self._prev_words = self._start_words
+        print("iter")
+        return self
+
+    def __next__(self):
+        print("next")
+        if len(self._start_words) > 0:
+            next_word = self._start_words[0]
+            self._start_words = self._start_words[1:]
+            print(next_word, self._start_words)
+            return next_word
+
+        while True:
+            try:
+                next_word = discrete_sample(self.chain[self._prev_words])
+                self._prev_words = self._prev_words[1:] + (next_word,)
+                return next_word
+            except:
+                raise StopIteration()
 
     def normalize(self, mc):
         """Normalizes the markov chain and saves the totals."""

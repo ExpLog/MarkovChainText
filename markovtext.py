@@ -22,7 +22,8 @@ def is_capitalized(string):
 
 
 def is_final_word(string):
-    return string[-1] in ".!?\n"
+    # TODO: this sucks, change into a regexp
+    return string[-1] in ".!?"
 
 
 def discrete_sample(seq):
@@ -51,12 +52,14 @@ class MarkovChainText(object):
         The text will begin with a capital word and each phrase ends with one of ".?!\n"
         :return:
         """
-        # TODO: sometimes it is impossible to continue, treat this case
         prev_words = discrete_sample(self.capitals)
         phrase = [word for word in prev_words]
         final_words_count = 0
         while final_words_count < n:
-            next_word = discrete_sample(self.chain[prev_words])
+            try:
+                next_word = discrete_sample(self.chain[prev_words])
+            except:
+                break
             phrase.append(next_word)
             prev_words = prev_words[1:] + (next_word,)
             if is_final_word(next_word):
@@ -94,4 +97,4 @@ file = open("test/pg11.txt", "r")
 mc_text = MarkovChainText(file)
 
 # TODO: set random seed
-print(mc_text.sample_phrases(2))
+print(" ".join(mc_text.sample_phrases(2)))

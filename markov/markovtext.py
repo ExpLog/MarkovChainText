@@ -62,6 +62,9 @@ class MarkovChainText(object):
         return {key: [(word, count/self.totals[key]) for word, count in word_list]
                 for key, word_list in mc.items()}
 
+    def update(self, text):
+        return 0
+
     def _window_counter(self, file):
         """
         Creates a Counter that counts how many times each window of
@@ -84,7 +87,7 @@ class MarkovChainText(object):
         return mc
 
 
-file = open("test/pg11.txt", "r")
-mc_text = MarkovChainText(file, 2)
+#file = open("test/pg11.txt", "r")
+#mc_text = MarkovChainText(file, 2)
 
-print(mc_text.sample_phrases())
+#print(mc_text.sample_phrases())

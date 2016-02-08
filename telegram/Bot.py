@@ -16,12 +16,13 @@ bot.
 """
 
 from telegram import Updater
-from markovtext import MarkovChainText
+from markov.markovtext import MarkovChainText
 import logging
 
 class MarkovBot():
-    def __init__(self, file):
+    def __init__(self, file, poll_size=20):
         self.file = open(file)
+        self.generator = MarkovChainText(self.file)
 
         # Enable logging
         logging.basicConfig(
@@ -29,25 +30,29 @@ class MarkovBot():
                 level=logging.INFO)
 
         self.logger = logging.getLogger(__name__)
+        self.message_poll = []
+        self.poll_size = poll_size
 
 
     # Define a few command handlers. These usually take the two arguments bot and
     # update. Error handlers also receive the raised TelegramError object in error.
-    def help(self, update):
-        self.sendMessage(update.message.chat_id, text='Help! I need somebody')
+    def help(self, bot, update):
+        bot.sendMessage(update.message.chat_id, text='Help! I need somebody')
 
-    def talk(bot, update):
-        generated_text = MarkovChainText(bot.file)
+    def talk(self, bot, update):
+        generated_text = self.generator.sample_phrases()
+        print(generated_text)
         bot.sendMessage(update.message.chat_id, text=generated_text)
 
-
-    def echo(self, update):
-        self.sendMessage(update.message.chat_id, text=update.message.text)
-
+    def echo(self, bot, update):
+        if len(self.message_poll) < self.poll_size:
+            self.message_poll.append(update.message.text)
+        else:
+            #self.generator.update(self.message_poll)
+            self.message_poll.clear()
 
     def error(self, update, error):
         self.logger.warn('Update "%s" caused error "%s"' % (update, error))
-
 
     def run(self):
         # Create the EventHandler and pass it your bot's token.

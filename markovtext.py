@@ -38,5 +38,6 @@ def markov_chain(file, history=3):
     return normalize_markov(mc)
 
 
-file = open(sys.argv[1], "r")
+file = open("test/repeating.txt", "r")
 text_chain = markov_chain(file, 3)
+print(text_chain)

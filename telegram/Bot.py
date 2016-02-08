@@ -16,53 +16,64 @@ bot.
 """
 
 from telegram import Updater
+from markovtext import MarkovChainText
 import logging
 
-# Enable logging
-logging.basicConfig(
-        format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
-        level=logging.INFO)
+class MarkovBot():
+    def __init__(self, file):
+        self.file = open(file)
 
-logger = logging.getLogger(__name__)
+        # Enable logging
+        logging.basicConfig(
+                format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+                level=logging.INFO)
 
-
-# Define a few command handlers. These usually take the two arguments bot and
-# update. Error handlers also receive the raised TelegramError object in error.
-def help(bot, update):
-    bot.sendMessage(update.message.chat_id, text='Help! I need somebody')
+        self.logger = logging.getLogger(__name__)
 
 
-def echo(bot, update):
-    bot.sendMessage(update.message.chat_id, text=update.message.text)
+    # Define a few command handlers. These usually take the two arguments bot and
+    # update. Error handlers also receive the raised TelegramError object in error.
+    def help(self, update):
+        self.sendMessage(update.message.chat_id, text='Help! I need somebody')
+
+    def talk(bot, update):
+        generated_text = MarkovChainText(bot.file)
+        bot.sendMessage(update.message.chat_id, text=generated_text)
 
 
-def error(bot, update, error):
-    logger.warn('Update "%s" caused error "%s"' % (update, error))
+    def echo(self, update):
+        self.sendMessage(update.message.chat_id, text=update.message.text)
 
 
-def main():
-    # Create the EventHandler and pass it your bot's token.
-    updater = Updater("194949588:AAETiWnXkKaOipiu2jaKHWmcTWnPfHXLXf0")
+    def error(self, update, error):
+        self.logger.warn('Update "%s" caused error "%s"' % (update, error))
 
-    # Get the dispatcher to register handlers
-    dp = updater.dispatcher
 
-    # on different commands - answer in Telegram
-    dp.addTelegramCommandHandler("help", help)
+    def run(self):
+        # Create the EventHandler and pass it your bot's token.
+        updater = Updater("194949588:AAETiWnXkKaOipiu2jaKHWmcTWnPfHXLXf0")
 
-    # on noncommand i.e message - echo the message on Telegram
-    dp.addTelegramMessageHandler(echo)
+        # Get the dispatcher to register handlers
+        dp = updater.dispatcher
 
-    # log all errors
-    dp.addErrorHandler(error)
+        # on different commands - answer in Telegram
+        dp.addTelegramCommandHandler("help", self.help)
+        dp.addTelegramCommandHandler("talk", self.talk)
 
-    # Start the Bot
-    updater.start_polling()
+        # on noncommand i.e message - echo the message on Telegram
+        dp.addTelegramMessageHandler(self.echo)
 
-    # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
-    # SIGTERM or SIGABRT. This should be used most of the time, since
-    # start_polling() is non-blocking and will stop the bot gracefully.
-    updater.idle()
+        # log all errors
+        dp.addErrorHandler(self.error)
+
+        # Start the Bot
+        updater.start_polling()
+
+        # Run the bot until the you presses Ctrl-C or the process receives SIGINT,
+        # SIGTERM or SIGABRT. This should be used most of the time, since
+        # start_polling() is non-blocking and will stop the bot gracefully.
+        updater.idle()
 
 if __name__ == '__main__':
-    main()
+    bot = MarkovBot("../test/pg11.txt")
+    bot.run()

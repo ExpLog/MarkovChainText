@@ -1,41 +1,7 @@
 import itertools as it
 from collections import Counter
-import sys
-import random
 
-
-def sliding_window(iter, n=3):
-        """Returns a sliding window of length `n` over the iterator."""
-        window = tuple(it.islice(iter, 0, n))
-        if len(window) == n:
-            yield window
-        for element in iter:
-            window = window[1:] + (element, )
-            yield window
-
-
-def is_capitalized(string):
-    """Checks if the word is capitalized. Expects non-empty strings"""
-    return string[0].isupper()
-
-
-def is_final_word(string):
-    """Checks if word ends with terminal ponctuation."""
-    # TODO: this sucks, change into a regexp
-    return string[-1] in ".!?:;"
-
-
-def discrete_sample(seq):
-    """
-    Samples from a discrete distribution.
-    Expects a sequence where each element is a 2-tuple, of the format (element, probability).
-    :param seq:
-    :return:
-    """
-    rand = random.random()
-    words, probability = zip(*seq)
-    acc_words = zip(words, it.accumulate(probability))
-    return next(it.dropwhile(lambda x: x[1] < rand, acc_words))[0]
+from markov.utils import sliding_window, is_capitalized, is_final_word, discrete_sample
 
 
 class MarkovChainText(object):
@@ -84,7 +50,7 @@ class MarkovChainText(object):
         """
         lines = [filter(lambda x: x != "", line.rstrip("\n").split(" ")) for line in file] # the filter removes empty strings
         text = it.chain(*lines)
-        return Counter(sliding_window(text, self.history+1))
+        return Counter(sliding_window(text, self.history + 1))
 
     def _markov_chain(self, window_counter):
         """Creates a Markov Chain from a file with text, already normalized."""
@@ -97,3 +63,9 @@ class MarkovChainText(object):
             else:
                 mc[curr_state].append((next_state, count))
         return mc
+
+
+file = open("test/pg11.txt", "r")
+mc_text = MarkovChainText(file, 2)
+
+print(mc_text.sample_phrases())

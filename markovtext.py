@@ -69,7 +69,7 @@ class MarkovChainText(object):
             prev_words = prev_words[1:] + (next_word,)
             if is_final_word(next_word):
                 final_words_count += 1
-        return phrase
+        return " ".join(phrase)
 
     def normalize(self, mc):
         """Normalizes the markov chain and saves the totals."""
@@ -101,6 +101,3 @@ class MarkovChainText(object):
 
 file = open("test/pg11.txt", "r")
 mc_text = MarkovChainText(file, 3)
-
-# TODO: set random seed
-print(" ".join(mc_text.sample_phrases(1)))

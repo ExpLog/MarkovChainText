@@ -74,7 +74,7 @@ class MarkovChainText(object):
         Creates a Counter that counts how many times each window of
         length history+1 appears in the text.
         """
-        text = it.chain(*[line.split(" ") for line in file])
+        text = it.chain(*[line.rstrip("\n").split(" ") for line in file])
         return Counter(sliding_window(text, self.history+1))
 
     def _markov_chain(self, window_counter):

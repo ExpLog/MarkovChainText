@@ -20,14 +20,13 @@ class MarkovChainText(object):
 
         counter = self._window_counter(file)
         self.totals = None
-        self.chain = self._markov_chain(counter)
-        self.normalize()
+        self.chain = self.normalize(self._markov_chain(counter))
 
-    def normalize(self):
+    def normalize(self, mc):
         """Normalizes the markov chain and saves the totals."""
-        self.totals = {key: sum(map(lambda t: t[1], value)) for key, value in self.chain.items()}
+        self.totals = {key: sum(map(lambda t: t[1], value)) for key, value in mc.items()}
         return {key: [(word, count/self.totals[key]) for word, count in word_list]
-                for key, word_list in self.chain.items()}
+                for key, word_list in mc.items()}
 
     def _window_counter(self, file):
         """

@@ -65,7 +65,7 @@ class MarkovChainText(object):
         return mc
 
 
-file = open("test/pg11.txt", "r")
-mc_text = MarkovChainText(file, 2)
+#file = open("test/pg11.txt", "r")
+#mc_text = MarkovChainText(file, 2)
 
-print(mc_text.sample_phrases())
+#print(mc_text.sample_phrases())

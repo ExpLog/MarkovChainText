@@ -43,6 +43,9 @@ class MarkovChainText(object):
         return {key: [(word, count/self.totals[key]) for word, count in word_list]
                 for key, word_list in mc.items()}
 
+    def update(self, text):
+        return 0
+
     def _window_counter(self, file):
         """
         Creates a Counter that counts how many times each window of

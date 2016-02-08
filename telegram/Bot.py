@@ -20,7 +20,7 @@ from markov.markovtext import MarkovChainText
 import logging
 
 class MarkovBot():
-    def __init__(self, file):
+    def __init__(self, file, poll_size=20):
         self.file = open(file)
         self.generator = MarkovChainText(self.file)
 
@@ -30,6 +30,8 @@ class MarkovBot():
                 level=logging.INFO)
 
         self.logger = logging.getLogger(__name__)
+        self.message_poll = []
+        self.poll_size = poll_size
 
 
     # Define a few command handlers. These usually take the two arguments bot and
@@ -42,8 +44,12 @@ class MarkovBot():
         print(generated_text)
         bot.sendMessage(update.message.chat_id, text=generated_text)
 
-    def echo(self, update):
-        self.sendMessage(update.message.chat_id, text=update.message.text)
+    def echo(self, bot, update):
+        if len(self.message_poll) < self.poll_size:
+            self.message_poll.append(update.message.text)
+        else:
+            #self.generator.update(self.message_poll)
+            self.message_poll.clear()
 
     def error(self, update, error):
         self.logger.warn('Update "%s" caused error "%s"' % (update, error))

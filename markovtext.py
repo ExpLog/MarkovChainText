@@ -15,7 +15,10 @@ def sliding_window(iter, n=3):
 
 
 def is_capitalized(string):
-    return string[0].isupper()
+    if len(string) > 0:
+        return string[0].isupper()
+    else:
+        return False
 
 
 def is_final_word(string):
@@ -48,7 +51,6 @@ class MarkovChainText(object):
         The text will begin with a capital word and each phrase ends with one of ".?!\n"
         :return:
         """
-        # TODO: if capitals is empty, this will not work
         # TODO: sometimes it is impossible to continue, treat this case
         prev_words = discrete_sample(self.capitals)
         phrase = [word for word in prev_words]
@@ -88,7 +90,7 @@ class MarkovChainText(object):
         return mc
 
 
-file = open(sys.argv[1], "r")
+file = open("test/pg11.txt", "r")
 mc_text = MarkovChainText(file)
 
 # TODO: set random seed

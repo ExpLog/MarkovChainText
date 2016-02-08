@@ -37,15 +37,12 @@ class MarkovChainText(object):
     def __iter__(self):
         self._start_words = discrete_sample(self.capitals)
         self._prev_words = self._start_words
-        print("iter")
         return self
 
     def __next__(self):
-        print("next")
         if len(self._start_words) > 0:
             next_word = self._start_words[0]
             self._start_words = self._start_words[1:]
-            print(next_word, self._start_words)
             return next_word
 
         while True:
@@ -87,7 +84,7 @@ class MarkovChainText(object):
         return mc
 
 
-#file = open("test/pg11.txt", "r")
-#mc_text = MarkovChainText(file, 2)
+file = open("test/pg11.txt", "r")
+mc_text = MarkovChainText(file, 2)
 
-#print(mc_text.sample_phrases())
+print(mc_text.sample_phrases())
